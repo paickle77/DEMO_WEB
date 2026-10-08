@@ -852,35 +852,37 @@ const matchQuiz = document.getElementById('matchQuiz');
     initLanguageDropdown();
 
 
-    /* ==========================================================================
-       14. MOBILE HEADER AUTO-HIDE ON SCROLL DOWN, REVEAL ON SCROLL UP
+        /* ==========================================================================
+       14. UNIVERSAL SMART HEADER (AUTO-HIDE ON SCROLL DOWN, REVEAL ON SCROLL UP)
        ========================================================================== */
-    function initMobileHeaderScroll() {
+    function initUniversalSmartHeader() {
         var header = document.getElementById('site-header') || document.querySelector('.mainHeader');
         var headerWrapper = document.querySelector('.mainHeader--height');
+        var topbar = document.querySelector('.topbar');
         if (!header) return;
 
         var lastScrollY = window.pageYOffset || document.documentElement.scrollTop;
         var scrollThreshold = 8;
         var isTicking = false;
 
-        function updateHeaderHeight() {
-            if (headerWrapper && header && window.innerWidth <= 991) {
+        function updateMetrics() {
+            if (headerWrapper && header) {
                 headerWrapper.style.minHeight = header.offsetHeight + 'px';
             }
         }
-        updateHeaderHeight();
-        window.addEventListener('resize', updateHeaderHeight);
+        updateMetrics();
+        window.addEventListener('resize', updateMetrics);
 
         window.addEventListener('scroll', function () {
             if (!isTicking) {
                 window.requestAnimationFrame(function () {
                     var currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
-                    var isMobile = window.innerWidth <= 991;
+                    var topbarHeight = topbar ? topbar.offsetHeight : 35;
 
-                    // If mobile menu is open, don't hide header
+                    // If mobile menu or desktop mega menu is open, keep header visible
                     var isMenuOpen = document.body.classList.contains('locked-scroll') ||
-                                     document.querySelector('.sitenav-menu.show');
+                                     document.querySelector('.sitenav-menu.show') ||
+                                     document.querySelector('.mega-menu-wrapper.is-hover');
 
                     if (isMenuOpen) {
                         header.classList.remove('header-scroll-down');
@@ -890,26 +892,26 @@ const matchQuiz = document.getElementById('matchQuiz');
                         return;
                     }
 
-                    if (isMobile) {
-                        var diff = currentScrollY - lastScrollY;
+                    var diff = currentScrollY - lastScrollY;
 
-                        if (currentScrollY <= 15) {
-                            // At top: reset
-                            header.classList.remove('header-scroll-down');
-                            header.classList.remove('header-scroll-up');
-                        } else if (diff > scrollThreshold && currentScrollY > 70) {
-                            // Scrolling DOWN -> HIDE HEADER
+                    // When at or near the very top of the page
+                    if (currentScrollY <= topbarHeight + 5) {
+                        header.classList.remove('is-sticky');
+                        header.classList.remove('header-scroll-down');
+                        header.classList.remove('header-scroll-up');
+                    } else {
+                        // Scrolled past topbar: activate sticky mode
+                        header.classList.add('is-sticky');
+
+                        if (diff > scrollThreshold && currentScrollY > topbarHeight + 40) {
+                            // SCROLLING DOWN -> HIDE HEADER (BOTH PC & MOBILE)
                             header.classList.remove('header-scroll-up');
                             header.classList.add('header-scroll-down');
                         } else if (diff < -scrollThreshold) {
-                            // Scrolling UP -> SHOW HEADER
+                            // SCROLLING UP -> SHOW HEADER (BOTH PC & MOBILE)
                             header.classList.remove('header-scroll-down');
                             header.classList.add('header-scroll-up');
                         }
-                    } else {
-                        // Desktop reset
-                        header.classList.remove('header-scroll-down');
-                        header.classList.remove('header-scroll-up');
                     }
 
                     lastScrollY = currentScrollY <= 0 ? 0 : currentScrollY;
@@ -919,6 +921,6 @@ const matchQuiz = document.getElementById('matchQuiz');
             }
         }, { passive: true });
     }
-    initMobileHeaderScroll();
+    initUniversalSmartHeader();
 
 });
