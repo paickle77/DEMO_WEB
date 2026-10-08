@@ -851,4 +851,74 @@ const matchQuiz = document.getElementById('matchQuiz');
     }
     initLanguageDropdown();
 
+
+    /* ==========================================================================
+       14. MOBILE HEADER AUTO-HIDE ON SCROLL DOWN, REVEAL ON SCROLL UP
+       ========================================================================== */
+    function initMobileHeaderScroll() {
+        var header = document.getElementById('site-header') || document.querySelector('.mainHeader');
+        var headerWrapper = document.querySelector('.mainHeader--height');
+        if (!header) return;
+
+        var lastScrollY = window.pageYOffset || document.documentElement.scrollTop;
+        var scrollThreshold = 8;
+        var isTicking = false;
+
+        function updateHeaderHeight() {
+            if (headerWrapper && header && window.innerWidth <= 991) {
+                headerWrapper.style.minHeight = header.offsetHeight + 'px';
+            }
+        }
+        updateHeaderHeight();
+        window.addEventListener('resize', updateHeaderHeight);
+
+        window.addEventListener('scroll', function () {
+            if (!isTicking) {
+                window.requestAnimationFrame(function () {
+                    var currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
+                    var isMobile = window.innerWidth <= 991;
+
+                    // If mobile menu is open, don't hide header
+                    var isMenuOpen = document.body.classList.contains('locked-scroll') ||
+                                     document.querySelector('.sitenav-menu.show');
+
+                    if (isMenuOpen) {
+                        header.classList.remove('header-scroll-down');
+                        header.classList.add('header-scroll-up');
+                        lastScrollY = currentScrollY;
+                        isTicking = false;
+                        return;
+                    }
+
+                    if (isMobile) {
+                        var diff = currentScrollY - lastScrollY;
+
+                        if (currentScrollY <= 15) {
+                            // At top: reset
+                            header.classList.remove('header-scroll-down');
+                            header.classList.remove('header-scroll-up');
+                        } else if (diff > scrollThreshold && currentScrollY > 70) {
+                            // Scrolling DOWN -> HIDE HEADER
+                            header.classList.remove('header-scroll-up');
+                            header.classList.add('header-scroll-down');
+                        } else if (diff < -scrollThreshold) {
+                            // Scrolling UP -> SHOW HEADER
+                            header.classList.remove('header-scroll-down');
+                            header.classList.add('header-scroll-up');
+                        }
+                    } else {
+                        // Desktop reset
+                        header.classList.remove('header-scroll-down');
+                        header.classList.remove('header-scroll-up');
+                    }
+
+                    lastScrollY = currentScrollY <= 0 ? 0 : currentScrollY;
+                    isTicking = false;
+                });
+                isTicking = true;
+            }
+        }, { passive: true });
+    }
+    initMobileHeaderScroll();
+
 });

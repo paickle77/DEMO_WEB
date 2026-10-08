@@ -1,4 +1,38 @@
 
+/* ==========================================================================
+   MOBILE AUTO-HIDE HEADER (HIDE ON SCROLL DOWN, SHOW ON SCROLL UP)
+   ========================================================================== */
+@media (max-width: 991px) {
+    .mainHeader {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        z-index: 1000 !important;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
+        background: #ffffff !important;
+    }
+
+    /* Scrolling DOWN: Hide Header */
+    .mainHeader.header-scroll-down {
+        transform: translateY(-100%) !important;
+    }
+
+    /* Scrolling UP: Reveal Header smoothly */
+    .mainHeader.header-scroll-up {
+        transform: translateY(0) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+    }
+
+    /* Prevent content jump */
+    .mainHeader--height {
+        min-height: 60px;
+    }
+}
+
+
 /* Language Dropdown Guarantee */
 .lang-dropdown-wrapper {
     position: relative !important;
