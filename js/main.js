@@ -852,8 +852,9 @@ const matchQuiz = document.getElementById('matchQuiz');
     initLanguageDropdown();
 
 
-        /* ==========================================================================
+            /* ==========================================================================
        14. UNIVERSAL SMART HEADER (AUTO-HIDE ON SCROLL DOWN, REVEAL ON SCROLL UP)
+       WITH DYNAMIC TOPBAR HEIGHT & FROSTED GLASS AT TOP
        ========================================================================== */
     function initUniversalSmartHeader() {
         var header = document.getElementById('site-header') || document.querySelector('.mainHeader');
@@ -866,12 +867,14 @@ const matchQuiz = document.getElementById('matchQuiz');
         var isTicking = false;
 
         function updateMetrics() {
-            if (headerWrapper && header) {
-                headerWrapper.style.minHeight = header.offsetHeight + 'px';
+            if (topbar) {
+                var tbHeight = topbar.offsetHeight || 35;
+                document.documentElement.style.setProperty('--topbar-height', tbHeight + 'px');
             }
         }
         updateMetrics();
         window.addEventListener('resize', updateMetrics);
+        window.addEventListener('load', updateMetrics);
 
         window.addEventListener('scroll', function () {
             if (!isTicking) {
@@ -903,7 +906,7 @@ const matchQuiz = document.getElementById('matchQuiz');
                         // Scrolled past topbar: activate sticky mode
                         header.classList.add('is-sticky');
 
-                        if (diff > scrollThreshold && currentScrollY > topbarHeight + 40) {
+                        if (diff > scrollThreshold && currentScrollY > topbarHeight + 30) {
                             // SCROLLING DOWN -> HIDE HEADER (BOTH PC & MOBILE)
                             header.classList.remove('header-scroll-up');
                             header.classList.add('header-scroll-down');

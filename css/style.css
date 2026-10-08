@@ -1,28 +1,63 @@
-
 /* ==========================================================================
-   UNIVERSAL SMART AUTO-HIDE HEADER (FOR BOTH PC & MOBILE)
+   UNIVERSAL SMART AUTO-HIDE HEADER WITH FROSTED GLASS AT TOP (PC & MOBILE)
    ========================================================================== */
+:root {
+    --topbar-height: 35px;
+}
+
 .topbar {
-    position: relative !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
     width: 100% !important;
-    z-index: 100 !important;
+    z-index: 10000000 !important;
 }
 
 .mainHeader--height {
-    position: relative !important;
+    position: absolute !important;
+    top: var(--topbar-height, 35px) !important;
+    left: 0 !important;
     width: 100% !important;
-    top: auto !important;
     z-index: 99999 !important;
-    pointer-events: auto !important;
+    pointer-events: none !important;
 }
 
+/* Default / At Top of Page: Frosted Glass Overlay (Both PC & Mobile) */
 .mainHeader {
-    position: relative;
-    width: 100%;
-    background: #ffffff !important;
-    z-index: 99999;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease !important;
+    position: relative !important;
+    width: 100% !important;
+    pointer-events: auto !important;
+    background: rgba(255, 255, 255, 0.5) !important;
+    backdrop-filter: blur(14px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04) !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+/* Ensure Dark Logo is visible on translucent light header */
+.mainHeader .logo-dark {
+    display: block !important;
+}
+.mainHeader .logo-light {
+    display: none !important;
+}
+
+/* Header Action Icons: Crisp & Visible on Frosted Glass */
+.mainHeader .svg-ico-search,
+.mainHeader .header-action_search .box-icon svg {
+    fill: #222222 !important;
+}
+
+.mainHeader .hamburger-menu .bar,
+.mainHeader .hamburger-menu .bar:after,
+.mainHeader .hamburger-menu .bar:before {
+    background: #222222 !important;
+}
+
+.mainHeader .lang-arrow {
+    stroke: #222222 !important;
+    color: #222222 !important;
 }
 
 /* Header in Sticky Mode (when scrolled down past topbar) */
@@ -44,12 +79,11 @@
 /* SCROLLING UP -> SLIDE DOWN HEADER (BOTH PC & MOBILE) */
 .mainHeader.is-sticky.header-scroll-up {
     transform: translateY(0) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
 }
-
-
-
-
 
 /* Language Dropdown Guarantee */
 .lang-dropdown-wrapper {
@@ -33687,7 +33721,7 @@ body.gen-cat-drawer-open {
   .mainHeader.mainHeader_temp02:not(.hSticky-nav) .header-wrap-action.header-wrap-iconav .header-action .header-action-item.header-action_menu .box-icon .hamburger-menu .bar,
   .mainHeader.mainHeader_temp02:not(.hSticky-nav) .header-wrap-action.header-wrap-iconav .header-action .header-action-item.header-action_menu .box-icon .hamburger-menu .bar:after,
   .mainHeader.mainHeader_temp02:not(.hSticky-nav) .header-wrap-action.header-wrap-iconav .header-action .header-action-item.header-action_menu .box-icon .hamburger-menu .bar:before {
-    background: #fff !important;
+    background: #222 !important;
   }
 
   .mainHeader .header-wrap-logo a img {
