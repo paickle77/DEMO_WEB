@@ -1,6 +1,9 @@
 /* Robexa Internationalization Dictionaries */
 window.ROBEXA_I18N = {
   "en": {
+    "Giới thiệu về Robexa": "About Robexa",
+    "Giới thiệu về PUDU Robotics": "About PUDU Robotics",
+    "Câu chuyện, dải sản phẩm, công nghệ, giải pháp ...": "Story, product lineup, technology & solutions ...",
     "Catalog Robexa": "Robexa Catalog",
     "- Xem toàn bộ dòng sản phẩm & thông số": "- View all product lines & specifications",
     "Mở": "Open",
@@ -337,6 +340,9 @@ window.ROBEXA_I18N = {
     "Khám phá về robexa": "Discover Robexa"
   },
   "zh-CN": {
+    "Giới thiệu về Robexa": "关于 Robexa",
+    "Giới thiệu về PUDU Robotics": "关于 PUDU Robotics",
+    "Câu chuyện, dải sản phẩm, công nghệ, giải pháp ...": "品牌故事、产品系列、技术与解决方案...",
     "Catalog Robexa": "Robexa产品手册",
     "- Xem toàn bộ dòng sản phẩm & thông số": "- 查看全部产品系列与规格",
     "Mở": "打开",
@@ -673,6 +679,9 @@ window.ROBEXA_I18N = {
     "Khám phá về robexa": "探索Robexa"
   },
   "ja": {
+    "Giới thiệu về Robexa": "Robexaについて",
+    "Giới thiệu về PUDU Robotics": "PUDU Roboticsについて",
+    "Câu chuyện, dải sản phẩm, công nghệ, giải pháp ...": "ストーリー、製品ラインナップ、技術、ソリューション...",
     "Catalog Robexa": "Robexaカタログ",
     "- Xem toàn bộ dòng sản phẩm & thông số": "- 全製品ラインナップと仕様を見る",
     "Mở": "開く",
@@ -1009,6 +1018,9 @@ window.ROBEXA_I18N = {
     "Khám phá về robexa": "Robexaについて知る"
   },
   "ko": {
+    "Giới thiệu về Robexa": "Robexa 소개",
+    "Giới thiệu về PUDU Robotics": "PUDU Robotics 소개",
+    "Câu chuyện, dải sản phẩm, công nghệ, giải pháp ...": "스토리, 제품군, 기술 및 솔루션...",
     "Catalog Robexa": "Robexa 카탈로그",
     "- Xem toàn bộ dòng sản phẩm & thông số": "- 전체 제품군 및 사양 보기",
     "Mở": "열기",
@@ -1345,6 +1357,9 @@ window.ROBEXA_I18N = {
     "Khám phá về robexa": "Robexa 알아보기"
   },
   "es": {
+    "Giới thiệu về Robexa": "Acerca de Robexa",
+    "Giới thiệu về PUDU Robotics": "Acerca de PUDU Robotics",
+    "Câu chuyện, dải sản phẩm, công nghệ, giải pháp ...": "Historia, gama de productos, tecnología y soluciones...",
     "Catalog Robexa": "Catálogo Robexa",
     "- Xem toàn bộ dòng sản phẩm & thông số": "- Ver todas las líneas de productos y especificaciones",
     "Mở": "Abrir",
