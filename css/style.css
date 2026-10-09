@@ -36022,7 +36022,8 @@ body {
     visibility 0s linear .28s;
 }
 
-.rbx-support.active .rbx-panel {
+.rbx-support.active .rbx-panel,
+.rbx-support .rbx-panel.is-open {
   opacity: 1;
   visibility: visible;
   transform: translateY(0) scale(1);

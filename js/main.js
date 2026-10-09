@@ -649,27 +649,36 @@ const matchQuiz = document.getElementById('matchQuiz');
        10. FLOATING SUPPORT PANEL & BACK-TO-TOP
        ========================================================================== */
     (function initFloatingSupport() {
-        var support = document.getElementById('rbxSupport');
-        var trigger = document.getElementById('rbxSupportTrigger');
-        var panel = document.getElementById('rbxSupportPanel');
-        var closeBtn = document.getElementById('rbxSupportClose');
+        var support = document.getElementById('rbxSupport') || document.querySelector('.rbx-support');
+        if (!support) return;
+        var trigger = document.getElementById('rbxSupportTrigger') || support.querySelector('.rbx-fab');
+        var panel = document.getElementById('rbxSupportPanel') || support.querySelector('.rbx-panel');
+        var closeBtn = document.getElementById('rbxSupportClose') || support.querySelector('.rbx-close');
 
-        if (support && trigger && panel) {
+        if (trigger && panel) {
             trigger.addEventListener('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                panel.classList.toggle('is-open');
+                var isActive = support.classList.toggle('active');
+                panel.classList.toggle('is-open', isActive);
+                trigger.setAttribute('aria-expanded', isActive ? 'true' : 'false');
             });
 
             if (closeBtn) {
-                closeBtn.addEventListener('click', function () {
+                closeBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    support.classList.remove('active');
                     panel.classList.remove('is-open');
+                    trigger.setAttribute('aria-expanded', 'false');
                 });
             }
 
             document.addEventListener('click', function (e) {
-                if (!panel.contains(e.target) && e.target !== trigger) {
+                if (!support.contains(e.target)) {
+                    support.classList.remove('active');
                     panel.classList.remove('is-open');
+                    trigger.setAttribute('aria-expanded', 'false');
                 }
             });
         }
