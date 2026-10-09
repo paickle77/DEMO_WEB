@@ -884,66 +884,131 @@ const matchQuiz = document.getElementById('matchQuiz');
         }
     };
 
+    var originalDomCaptured = false;
+    function captureOriginalDOM() {
+        if (originalDomCaptured) return;
+        originalDomCaptured = true;
+
+        var heroH1 = document.querySelector('.lhero-inner h1');
+        if (heroH1) heroH1._origHTML = heroH1.innerHTML;
+
+        var inputs = document.querySelectorAll('input[placeholder], textarea[placeholder]');
+        inputs.forEach(function(inp) {
+            inp._origPlaceholder = inp.getAttribute('placeholder') || '';
+        });
+
+        try {
+            var walker = document.createTreeWalker(
+                document.body,
+                NodeFilter.SHOW_TEXT,
+                {
+                    acceptNode: function(node) {
+                        var parent = node.parentElement;
+                        if (!parent) return NodeFilter.FILTER_REJECT;
+                        var tag = parent.tagName;
+                        if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'SVG' || tag === 'CODE' || tag === 'PRE') {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+                        if (parent.closest('.notranslate') || parent.closest('.lang-dropdown-menu')) {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+                        var txt = node.nodeValue.trim();
+                        if (!txt || txt.length < 2) return NodeFilter.FILTER_SKIP;
+                        return NodeFilter.FILTER_ACCEPT;
+                    }
+                }
+            );
+
+            var n;
+            while ((n = walker.nextNode())) {
+                n._origTextValue = n.nodeValue;
+            }
+        } catch (e) {}
+    }
+
     function applyInPageTranslation(lang) {
-        var dict = TRANSLATIONS[lang] || TRANSLATIONS['vi'];
+        if (!lang) lang = 'vi';
+        var isVi = (lang === 'vi');
+        var dict = (window.ROBEXA_I18N && window.ROBEXA_I18N[lang]) ? window.ROBEXA_I18N[lang] : (TRANSLATIONS[lang] || {});
 
-        // 1. Desktop Navigation
-        var desktopLinks = document.querySelectorAll('.menuList-main > li > a');
-        if (desktopLinks.length >= 5) {
-            desktopLinks[0].textContent = dict.nav_products;
-            desktopLinks[1].textContent = dict.nav_solutions;
-            desktopLinks[2].textContent = dict.nav_promotions;
-            desktopLinks[3].textContent = dict.nav_resources;
-            desktopLinks[4].textContent = dict.nav_about;
+        // Ensure original DOM is captured first
+        captureOriginalDOM();
+
+        // 1. Full DOM Text Nodes Walker - translates ALL text nodes across the entire page
+        try {
+            var walker = document.createTreeWalker(
+                document.body,
+                NodeFilter.SHOW_TEXT,
+                {
+                    acceptNode: function(node) {
+                        var parent = node.parentElement;
+                        if (!parent) return NodeFilter.FILTER_REJECT;
+                        var tag = parent.tagName;
+                        if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'SVG' || tag === 'CODE' || tag === 'PRE') {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+                        if (parent.closest('.notranslate') || parent.closest('.lang-dropdown-menu')) {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+                        var txt = node.nodeValue.trim();
+                        if (!txt || txt.length < 2) return NodeFilter.FILTER_SKIP;
+                        return NodeFilter.FILTER_ACCEPT;
+                    }
+                }
+            );
+
+            var node;
+            while ((node = walker.nextNode())) {
+                if (typeof node._origTextValue === 'undefined') {
+                    node._origTextValue = node.nodeValue;
+                }
+                if (isVi) {
+                    node.nodeValue = node._origTextValue;
+                } else {
+                    var raw = node._origTextValue;
+                    var trimmed = raw.trim();
+                    if (dict[trimmed]) {
+                        node.nodeValue = raw.replace(trimmed, dict[trimmed]);
+                    } else {
+                        var normalized = trimmed.replace(/\s+/g, ' ');
+                        if (dict[normalized]) {
+                            node.nodeValue = raw.replace(trimmed, dict[normalized]);
+                        }
+                    }
+                }
+            }
+        } catch (walkerErr) {
+            console.warn('[Robexa] TreeWalker error:', walkerErr);
         }
 
-        // 2. Mobile Drawer Navigation
-        var mbLinks = document.querySelectorAll('.sitenav-menu .menuList-links > li > a');
-        if (mbLinks.length >= 5) {
-            var s0 = mbLinks[0].querySelector('span:not(.icon-plus-submenu)');
-            if (s0) s0.textContent = dict.nav_products;
-            var s1 = mbLinks[1].querySelector('span:not(.icon-plus-submenu)');
-            if (s1) s1.textContent = dict.nav_solutions;
-            var s2 = mbLinks[2].querySelector('span:not(.icon-plus-submenu)');
-            if (s2) s2.textContent = dict.nav_promotions;
-            var s3 = mbLinks[3].querySelector('span:not(.icon-plus-submenu)');
-            if (s3) s3.textContent = dict.nav_resources;
-            var s4 = mbLinks[4].querySelector('span:not(.icon-plus-submenu)');
-            if (s4) s4.textContent = dict.nav_about;
-        }
+        // 2. Placeholders in search input, inputs, textareas
+        try {
+            var inputs = document.querySelectorAll('input[placeholder], textarea[placeholder]');
+            inputs.forEach(function(inp) {
+                if (isVi) {
+                    if (inp._origPlaceholder) inp.setAttribute('placeholder', inp._origPlaceholder);
+                } else {
+                    var origP = (inp._origPlaceholder || inp.getAttribute('placeholder') || '').trim();
+                    if (dict[origP]) {
+                        inp.setAttribute('placeholder', dict[origP]);
+                    }
+                }
+            });
+        } catch (inpErr) {}
 
-        // 3. Contact CTA
-        var contactBtns = document.querySelectorAll('.gen_header_contact span');
-        contactBtns.forEach(function(btn) { btn.textContent = dict.nav_contact; });
+        // 3. Hero H1 explicit check
+        try {
+            var heroH1 = document.querySelector('.lhero-inner h1');
+            if (heroH1) {
+                if (isVi) {
+                    if (heroH1._origHTML) heroH1.innerHTML = heroH1._origHTML;
+                } else if (dict['Robexa — Giải pháp robot'] && dict['cho doanh nghiệp']) {
+                    heroH1.innerHTML = dict['Robexa — Giải pháp robot'] + '<br>' + dict['cho doanh nghiệp'];
+                }
+            }
+        } catch (h1Err) {}
 
-        // 4. Hero Banner elements
-        var brandEl = document.querySelector('.lhero-brand');
-        if (brandEl) brandEl.textContent = dict.hero_brand;
-
-        var h1El = document.querySelector('.lhero-inner h1');
-        if (h1El) h1El.innerHTML = dict.hero_h1;
-
-        var subEl = document.querySelector('.lhero-sub');
-        if (subEl) subEl.textContent = dict.hero_sub;
-
-        var heroBtnTx = document.querySelector('.lhero-btn .tx');
-        if (heroBtnTx) heroBtnTx.textContent = dict.hero_btn;
-
-        // 5. Hotline & Floating Buttons
-        var hotlineTitles = document.querySelectorAll('.rbx-hotline-menu-title');
-        hotlineTitles.forEach(function(t) { t.textContent = dict.hotline_title; });
-
-        var badges = document.querySelectorAll('.hdr-call-badge');
-        badges.forEach(function(b) { b.textContent = dict.call_btn; });
-
-        var demoTx = document.querySelector('.rbx-demo-tx');
-        if (demoTx) demoTx.textContent = dict.demo_free;
-
-        // 6. Search Placeholder
-        var searchInput = document.getElementById('gsp-input');
-        if (searchInput) searchInput.setAttribute('placeholder', dict.search_placeholder);
-
-        console.log('[Robexa] Applied language translation for:', lang);
+        console.log('[Robexa] Applied comprehensive full-page language translation for:', lang);
     }
     window.robexaChangeLanguage = applyInPageTranslation;
 
@@ -983,16 +1048,6 @@ const matchQuiz = document.getElementById('matchQuiz');
                 // 1. In-page instant UI translation
                 applyInPageTranslation(langCode);
 
-                // 2. Google Translate cookie & combo trigger
-                try {
-                    document.cookie = 'googtrans=/vi/' + langCode + '; path=/;';
-                    document.cookie = 'googtrans=/vi/' + langCode + '; path=/; domain=' + window.location.hostname + ';';
-                    var select = document.querySelector('#google_translate_element select.goog-te-combo');
-                    if (select) {
-                        select.value = langCode;
-                        select.dispatchEvent(new Event('change'));
-                    }
-                } catch (err) {}
 
                 try {
                     localStorage.setItem('selected_lang', langCode);
