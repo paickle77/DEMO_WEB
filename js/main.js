@@ -691,42 +691,455 @@ const matchQuiz = document.getElementById('matchQuiz');
     })();
 
 
-    /* ==========================================================================
-       11. GLOBAL SEARCH MODAL OVERLAY
+        /* ==========================================================================
+       11. GLOBAL SEARCH MODAL OVERLAY (SEARCH MODAL LIKE IMAGE 1)
        ========================================================================== */
-    var searchTrigger = document.querySelector('.header-action_search a');
-    var gspOverlay = document.getElementById('gsp-overlay');
-    var gspClose = document.querySelector('.gsp-close-btn');
+    function initGlobalSearchModal() {
+        var searchTriggers = document.querySelectorAll('#site-search-handle, .header-action_search a, .header-action_search, .mb-search-btn');
+        var gspOverlay = document.getElementById('gsp-overlay');
+        var gspBackdrop = document.getElementById('gsp-backdrop');
+        var gspBtnEsc = document.getElementById('gsp-btn-esc');
+        var gspInput = document.getElementById('gsp-input');
+        var gspBtnClear = document.getElementById('gsp-btn-clear');
+        var resultItems = document.querySelectorAll('.gsp-result-item');
 
-    if (searchTrigger && gspOverlay) {
-        searchTrigger.addEventListener('click', function (e) {
-            e.preventDefault();
-            gspOverlay.classList.add('active');
+        if (!gspOverlay) return;
+
+        function openSearch(e) {
+            if (e) e.preventDefault();
+            gspOverlay.classList.add('gsp-active');
             gspOverlay.setAttribute('aria-hidden', 'false');
-            var input = gspOverlay.querySelector('input');
-            if (input) input.focus();
-        });
-    }
+            document.body.classList.add('locked-scroll');
+            setTimeout(function() {
+                if (gspInput) {
+                    gspInput.focus();
+                    if (gspInput.value) gspInput.select();
+                }
+            }, 100);
+        }
 
-    if (gspClose && gspOverlay) {
-        gspClose.addEventListener('click', function (e) {
-            e.preventDefault();
-            gspOverlay.classList.remove('active');
+        function closeSearch(e) {
+            if (e) e.preventDefault();
+            gspOverlay.classList.remove('gsp-active');
             gspOverlay.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('locked-scroll');
+        }
+
+        searchTriggers.forEach(function(trig) {
+            trig.addEventListener('click', openSearch);
+        });
+
+        if (gspBackdrop) gspBackdrop.addEventListener('click', closeSearch);
+        if (gspBtnEsc) gspBtnEsc.addEventListener('click', closeSearch);
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && gspOverlay.classList.contains('gsp-active')) {
+                closeSearch();
+            }
+        });
+
+        // Search input live filtering
+        if (gspInput) {
+            gspInput.addEventListener('input', function() {
+                var query = this.value.trim().toLowerCase();
+                if (gspBtnClear) {
+                    gspBtnClear.style.display = query.length > 0 ? 'flex' : 'none';
+                }
+
+                resultItems.forEach(function(item) {
+                    var text = item.textContent.toLowerCase();
+                    if (!query || text.indexOf(query) !== -1) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        if (gspBtnClear && gspInput) {
+            gspBtnClear.addEventListener('click', function(e) {
+                e.preventDefault();
+                gspInput.value = '';
+                gspInput.focus();
+                gspBtnClear.style.display = 'none';
+                resultItems.forEach(function(item) {
+                    item.style.display = 'flex';
+                });
+            });
+        }
+
+        // Close on result item click if internal anchor
+        resultItems.forEach(function(item) {
+            item.addEventListener('click', function() {
+                var href = this.getAttribute('href');
+                if (href && href.startsWith('#')) {
+                    closeSearch();
+                }
+            });
         });
     }
+    initGlobalSearchModal();
 
-    if (gspOverlay) {
-        gspOverlay.addEventListener('click', function (e) {
-            if (e.target === gspOverlay) {
-                gspOverlay.classList.remove('active');
-                gspOverlay.setAttribute('aria-hidden', 'true');
+
+    /* ==========================================================================
+       13. MULTI-LANGUAGE SWITCHER (INSTANT TRANSLATION & GOOGLE TRANSLATE)
+       ========================================================================== */
+    var TRANSLATIONS = {
+        'vi': {
+            'nav_products': 'Sản phẩm',
+            'nav_solutions': 'Giải pháp',
+            'nav_promotions': 'Chương trình khuyến mãi',
+            'nav_resources': 'Tài nguyên',
+            'nav_about': 'Về chúng tôi',
+            'nav_contact': 'Liên hệ',
+            'hero_brand': 'Robot PUDU tại Việt Nam',
+            'hero_h1': 'Robexa — Giải pháp robot <br> cho doanh nghiệp',
+            'hero_sub': 'Robexa tư vấn và triển khai robot phục vụ, vệ sinh và vận chuyển công nghiệp với công nghệ PUDU, cùng dịch vụ hỗ trợ tại Việt Nam.',
+            'hero_btn': 'Nhận tư vấn',
+            'hotline_title': 'Hotline tư vấn',
+            'call_btn': 'Gọi',
+            'demo_free': 'Demo miễn phí',
+            'search_placeholder': 'Tìm sản phẩm, giải pháp, số điện thoại, địa chỉ...'
+        },
+        'en': {
+            'nav_products': 'Products',
+            'nav_solutions': 'Solutions',
+            'nav_promotions': 'Promotions',
+            'nav_resources': 'Resources',
+            'nav_about': 'About Us',
+            'nav_contact': 'Contact Us',
+            'hero_brand': 'PUDU Robotics in Vietnam',
+            'hero_h1': 'Robexa — Robotic Solutions <br> For Enterprises',
+            'hero_sub': 'Robexa provides consulting and deployment of delivery, cleaning and industrial transport robots powered by PUDU technology with full local support in Vietnam.',
+            'hero_btn': 'Get Consultation',
+            'hotline_title': 'Consultation Hotline',
+            'call_btn': 'Call',
+            'demo_free': 'Free Demo',
+            'search_placeholder': 'Search products, solutions, phone number, address...'
+        },
+        'zh-CN': {
+            'nav_products': '产品',
+            'nav_solutions': '解决方案',
+            'nav_promotions': '促销活动',
+            'nav_resources': '资源中心',
+            'nav_about': '关于我们',
+            'nav_contact': '联系我们',
+            'hero_brand': 'PUDU机器人越南官方',
+            'hero_h1': 'Robexa — 企业级机器人 <br> 整体解决方案',
+            'hero_sub': 'Robexa在越南提供PUDU配送、清洁与工业搬运机器人的咨询、实施与本地化技术支持服务。',
+            'hero_btn': '立即咨询',
+            'hotline_title': '咨询热线',
+            'call_btn': '呼叫',
+            'demo_free': '免费演示',
+            'search_placeholder': '搜索产品、方案、电话、地址...'
+        },
+        'ja': {
+            'nav_products': '製品情報',
+            'nav_solutions': 'ソリューション',
+            'nav_promotions': 'キャンペーン',
+            'nav_resources': '資料・知見',
+            'nav_about': '会社概要',
+            'nav_contact': 'お問い合わせ',
+            'hero_brand': 'ベトナムにおけるPUDUロボティクス',
+            'hero_h1': 'Robexa — 企業向け <br> ロボットソリューション',
+            'hero_sub': 'RobexaはPUDU技術を核とした配膳、清掃、産業搬送ロボットの導入支援とベトナム国内サポートを提供します。',
+            'hero_btn': '無料相談',
+            'hotline_title': 'カスタマー窓口',
+            'call_btn': '通話',
+            'demo_free': '無料デモ',
+            'search_placeholder': '製品、ソリューション、電話番号を検索...'
+        },
+        'ko': {
+            'nav_products': '제품',
+            'nav_solutions': '솔루션',
+            'nav_promotions': '프로모션',
+            'nav_resources': '리소스',
+            'nav_about': '회사 소개',
+            'nav_contact': '문의하기',
+            'hero_brand': '베트남 공식 PUDU 로보틱스',
+            'hero_h1': 'Robexa — 기업을 위한 <br> 첨단 로봇 솔루션',
+            'hero_sub': 'Robexa는 베트남 현지에서 PUDU 기술 기반의 서빙, 청소 및 산업용 운송 로봇 컨설팅과 기술 지원을 제공합니다.',
+            'hero_btn': '상담 신청',
+            'hotline_title': '고객 상담 센터',
+            'call_btn': '통화',
+            'demo_free': '무료 데모',
+            'search_placeholder': '제품, 솔루션, 전화번호, 주소 검색...'
+        },
+        'es': {
+            'nav_products': 'Productos',
+            'nav_solutions': 'Soluciones',
+            'nav_promotions': 'Promociones',
+            'nav_resources': 'Recursos',
+            'nav_about': 'Sobre nosotros',
+            'nav_contact': 'Contacto',
+            'hero_brand': 'PUDU Robotics en Vietnam',
+            'hero_h1': 'Robexa — Soluciones robóticas <br> para empresas',
+            'hero_sub': 'Robexa asesora e implementa robots de reparto, limpieza y transporte industrial con tecnología PUDU y soporte en Vietnam.',
+            'hero_btn': 'Solicitar asesoría',
+            'hotline_title': 'Línea de consulta',
+            'call_btn': 'Llamar',
+            'demo_free': 'Demostración gratis',
+            'search_placeholder': 'Buscar productos, soluciones, teléfono...'
+        }
+    };
+
+    function applyInPageTranslation(lang) {
+        var dict = TRANSLATIONS[lang] || TRANSLATIONS['vi'];
+
+        // 1. Desktop Navigation
+        var desktopLinks = document.querySelectorAll('.menuList-main > li > a');
+        if (desktopLinks.length >= 5) {
+            desktopLinks[0].textContent = dict.nav_products;
+            desktopLinks[1].textContent = dict.nav_solutions;
+            desktopLinks[2].textContent = dict.nav_promotions;
+            desktopLinks[3].textContent = dict.nav_resources;
+            desktopLinks[4].textContent = dict.nav_about;
+        }
+
+        // 2. Mobile Drawer Navigation
+        var mbLinks = document.querySelectorAll('.sitenav-menu .menuList-links > li > a');
+        if (mbLinks.length >= 5) {
+            var s0 = mbLinks[0].querySelector('span:not(.icon-plus-submenu)');
+            if (s0) s0.textContent = dict.nav_products;
+            var s1 = mbLinks[1].querySelector('span:not(.icon-plus-submenu)');
+            if (s1) s1.textContent = dict.nav_solutions;
+            var s2 = mbLinks[2].querySelector('span:not(.icon-plus-submenu)');
+            if (s2) s2.textContent = dict.nav_promotions;
+            var s3 = mbLinks[3].querySelector('span:not(.icon-plus-submenu)');
+            if (s3) s3.textContent = dict.nav_resources;
+            var s4 = mbLinks[4].querySelector('span:not(.icon-plus-submenu)');
+            if (s4) s4.textContent = dict.nav_about;
+        }
+
+        // 3. Contact CTA
+        var contactBtns = document.querySelectorAll('.gen_header_contact span');
+        contactBtns.forEach(function(btn) { btn.textContent = dict.nav_contact; });
+
+        // 4. Hero Banner elements
+        var brandEl = document.querySelector('.lhero-brand');
+        if (brandEl) brandEl.textContent = dict.hero_brand;
+
+        var h1El = document.querySelector('.lhero-inner h1');
+        if (h1El) h1El.innerHTML = dict.hero_h1;
+
+        var subEl = document.querySelector('.lhero-sub');
+        if (subEl) subEl.textContent = dict.hero_sub;
+
+        var heroBtnTx = document.querySelector('.lhero-btn .tx');
+        if (heroBtnTx) heroBtnTx.textContent = dict.hero_btn;
+
+        // 5. Hotline & Floating Buttons
+        var hotlineTitles = document.querySelectorAll('.rbx-hotline-menu-title');
+        hotlineTitles.forEach(function(t) { t.textContent = dict.hotline_title; });
+
+        var badges = document.querySelectorAll('.hdr-call-badge');
+        badges.forEach(function(b) { b.textContent = dict.call_btn; });
+
+        var demoTx = document.querySelector('.rbx-demo-tx');
+        if (demoTx) demoTx.textContent = dict.demo_free;
+
+        // 6. Search Placeholder
+        var searchInput = document.getElementById('gsp-input');
+        if (searchInput) searchInput.setAttribute('placeholder', dict.search_placeholder);
+
+        console.log('[Robexa] Applied language translation for:', lang);
+    }
+    window.robexaChangeLanguage = applyInPageTranslation;
+
+    function initLanguageDropdown() {
+        var langBtn = document.querySelector('.lang-dropdown-btn');
+        var langWrapper = document.querySelector('.lang-dropdown-wrapper');
+        var langOptions = document.querySelectorAll('.lang-option');
+        var currentFlagContainer = document.querySelector('.lang-current-flag');
+
+        if (!langWrapper || !langBtn) return;
+
+        langBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            langWrapper.classList.toggle('open');
+        });
+
+        langOptions.forEach(function(opt) {
+            opt.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                var langCode = this.getAttribute('data-lang');
+                var langName = this.querySelector('.lang-name') ? this.querySelector('.lang-name').textContent.trim() : langCode;
+                var flagBox = this.querySelector('.lang-flag-box');
+                var flagHtml = flagBox ? flagBox.innerHTML : '';
+
+                langOptions.forEach(function(o) { o.classList.remove('active'); });
+                this.classList.add('active');
+
+                if (currentFlagContainer && flagHtml) {
+                    currentFlagContainer.innerHTML = flagHtml;
+                }
+
+                langWrapper.classList.remove('open');
+
+                // 1. In-page instant UI translation
+                applyInPageTranslation(langCode);
+
+                // 2. Google Translate cookie & combo trigger
+                try {
+                    document.cookie = 'googtrans=/vi/' + langCode + '; path=/;';
+                    document.cookie = 'googtrans=/vi/' + langCode + '; path=/; domain=' + window.location.hostname + ';';
+                    var select = document.querySelector('#google_translate_element select.goog-te-combo');
+                    if (select) {
+                        select.value = langCode;
+                        select.dispatchEvent(new Event('change'));
+                    }
+                } catch (err) {}
+
+                try {
+                    localStorage.setItem('selected_lang', langCode);
+                } catch (err) {}
+
+                showDemoToast('🌐 Ngôn ngữ: ' + langName);
+            });
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!langWrapper.contains(e.target)) {
+                langWrapper.classList.remove('open');
+            }
+        });
+
+        // Restore language on load
+        try {
+            var savedLang = localStorage.getItem('selected_lang');
+            if (savedLang && savedLang !== 'vi') {
+                var savedOpt = document.querySelector('.lang-option[data-lang="' + savedLang + '"]');
+                if (savedOpt) {
+                    langOptions.forEach(function(o) { o.classList.remove('active'); });
+                    savedOpt.classList.add('active');
+                    var savedFlag = savedOpt.querySelector('.lang-flag-box');
+                    if (currentFlagContainer && savedFlag) {
+                        currentFlagContainer.innerHTML = savedFlag.innerHTML;
+                    }
+                    applyInPageTranslation(savedLang);
+                }
+            }
+        } catch (err) {}
+    }
+    initLanguageDropdown();
+
+
+    /* ==========================================================================
+       15. MOBILE HAMBURGER MENU DRAWER (SLIDE FROM LEFT)
+       ========================================================================== */
+    function initMobileHamburgerMenu() {
+        var hamburgerBtn = document.querySelector('.header-action_menu a, a[name="icon-menu-mobile"], .header-action_menu');
+        var sidebarMain = document.querySelector('.sidebar-main');
+        var sitenavMenu = document.querySelector('.sitenav-menu');
+        var closeBtn = document.querySelector('.btn-sitenav-close, a[name="button-close"]');
+        var overlay = document.querySelector('.sidebar-main .sidebar-overlay');
+
+        if (!hamburgerBtn || !sidebarMain || !sitenavMenu) return;
+
+        function openMenu(e) {
+            if (e) e.preventDefault();
+            sidebarMain.classList.add('is-show-left');
+            sitenavMenu.classList.add('show');
+            document.body.classList.add('locked-scroll');
+        }
+
+        function closeMenu(e) {
+            if (e) e.preventDefault();
+            sidebarMain.classList.remove('is-show-left');
+            sitenavMenu.classList.remove('show');
+            document.body.classList.remove('locked-scroll');
+        }
+
+        hamburgerBtn.addEventListener('click', openMenu);
+        if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+        if (overlay) overlay.addEventListener('click', closeMenu);
+
+        // Submenu accordion toggles (+ icon)
+        var plusIcons = sitenavMenu.querySelectorAll('.icon-plus-submenu');
+        plusIcons.forEach(function(icon) {
+            icon.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var parentLi = this.closest('li.has-submenu');
+                if (parentLi) {
+                    parentLi.classList.toggle('opened');
+                    var submenu = parentLi.querySelector(':scope > ul.submenu-links');
+                    if (submenu) {
+                        submenu.style.display = parentLi.classList.contains('opened') ? 'block' : 'none';
+                    }
+                }
+            });
+        });
+
+        // Close on internal link click
+        var navLinks = sitenavMenu.querySelectorAll('a[href^="#"]');
+        navLinks.forEach(function(link) {
+            link.addEventListener('click', function() {
+                closeMenu();
+            });
+        });
+    }
+    initMobileHamburgerMenu();
+
+
+    /* ==========================================================================
+       16. MOBILE PHONE HOTLINE FAB & SPEED-DIAL POPUP (IMAGE 2)
+       ========================================================================== */
+    function initMobileHotlinePopup() {
+        var hotlineFab = document.getElementById('rbxHotlineFab');
+        var topbarBottom = document.getElementById('rbxTopbarBottom');
+
+        if (!hotlineFab || !topbarBottom) return;
+
+        hotlineFab.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            topbarBottom.classList.toggle('is-open');
+            var isOpen = topbarBottom.classList.contains('is-open');
+            hotlineFab.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!topbarBottom.contains(e.target)) {
+                topbarBottom.classList.remove('is-open');
+                hotlineFab.setAttribute('aria-expanded', 'false');
             }
         });
     }
+    initMobileHotlinePopup();
 
 
-        /* ==========================================================================
+    /* ==========================================================================
+       17. HERO SLIDER OWL CAROUSEL (3 BANNER SLIDES AUTO-ROTATION)
+       ========================================================================== */
+    function initHeroOwlSlider() {
+        if (window.jQuery && jQuery.fn.owlCarousel) {
+            var $slider = jQuery('.slider-owl');
+            if ($slider.length) {
+                $slider.owlCarousel({
+                    items: 1,
+                    loop: true,
+                    autoplay: true,
+                    autoplayTimeout: 6500,
+                    autoplayHoverPause: true,
+                    smartSpeed: 800,
+                    nav: true,
+                    dots: true,
+                    dotsEach: true,
+                    responsiveRefreshRate: 100
+                });
+                console.log('OwlCarousel initialized on .slider-owl with 3 slides');
+            }
+        }
+    }
+    initHeroOwlSlider();
+
+
+    /* ==========================================================================
        12. SCROLL REVEAL ANIMATIONS (SMOOTH INTERSECTION OBSERVER)
        ========================================================================== */
     function initScrollReveal() {
@@ -776,83 +1189,6 @@ const matchQuiz = document.getElementById('matchQuiz');
     
 
     /* ==========================================================================
-       13. LANGUAGE SELECTOR DROPDOWN
-       ========================================================================== */
-    function initLanguageDropdown() {
-        var langBtn = document.querySelector('.lang-dropdown-btn');
-        var langWrapper = document.querySelector('.lang-dropdown-wrapper');
-        var langOptions = document.querySelectorAll('.lang-option');
-        var currentFlagContainer = document.querySelector('.lang-current-flag');
-
-        if (!langWrapper || !langBtn) return;
-
-        // Toggle dropdown on button click
-        langBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            langWrapper.classList.toggle('open');
-        });
-
-        // Select language option
-        langOptions.forEach(function(opt) {
-            opt.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                var langCode = this.getAttribute('data-lang');
-                var langName = this.querySelector('.lang-name') ? this.querySelector('.lang-name').textContent.trim() : langCode;
-                var flagBox = this.querySelector('.lang-flag-box');
-                var flagHtml = flagBox ? flagBox.innerHTML : '';
-
-                // Update active class
-                langOptions.forEach(function(o) { o.classList.remove('active'); });
-                this.classList.add('active');
-
-                // Update current flag in button
-                if (currentFlagContainer && flagHtml) {
-                    currentFlagContainer.innerHTML = flagHtml;
-                }
-
-                // Close dropdown
-                langWrapper.classList.remove('open');
-
-                // Save to localStorage
-                try {
-                    localStorage.setItem('selected_lang', langCode);
-                } catch (err) {}
-
-                // Show notification
-                showDemoToast('🌐 Ngôn ngữ hiển thị: ' + langName);
-            });
-        });
-
-        // Close on click outside
-        document.addEventListener('click', function(e) {
-            if (!langWrapper.contains(e.target)) {
-                langWrapper.classList.remove('open');
-            }
-        });
-
-        // Restore saved language on load if any
-        try {
-            var savedLang = localStorage.getItem('selected_lang');
-            if (savedLang) {
-                var savedOpt = document.querySelector('.lang-option[data-lang="' + savedLang + '"]');
-                if (savedOpt) {
-                    langOptions.forEach(function(o) { o.classList.remove('active'); });
-                    savedOpt.classList.add('active');
-                    var savedFlag = savedOpt.querySelector('.lang-flag-box');
-                    if (currentFlagContainer && savedFlag) {
-                        currentFlagContainer.innerHTML = savedFlag.innerHTML;
-                    }
-                }
-            }
-        } catch (err) {}
-    }
-    initLanguageDropdown();
-
-
-            /* ==========================================================================
        14. UNIVERSAL SMART HEADER (AUTO-HIDE ON SCROLL DOWN, REVEAL ON SCROLL UP)
        WITH DYNAMIC TOPBAR HEIGHT & FROSTED GLASS AT TOP
        ========================================================================== */

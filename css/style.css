@@ -1,5 +1,5 @@
 /* ==========================================================================
-   UNIVERSAL SMART AUTO-HIDE HEADER WITH FROSTED GLASS AT TOP (PC & MOBILE)
+   UNIVERSAL SMART AUTO-HIDE HEADER WITH EXTRA FROSTED GLASS AT TOP (PC & MOBILE)
    ========================================================================== */
 :root {
     --topbar-height: 35px;
@@ -22,16 +22,16 @@
     pointer-events: none !important;
 }
 
-/* Default / At Top of Page: Frosted Glass Overlay (Both PC & Mobile) */
+/* Default / At Top of Page: EXTRA Frosted Glass Overlay (both PC & Mobile) */
 .mainHeader {
     position: relative !important;
     width: 100% !important;
     pointer-events: auto !important;
-    background: rgba(255, 255, 255, 0.5) !important;
-    backdrop-filter: blur(14px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04) !important;
+    background: rgba(255, 255, 255, 0.22) !important;
+    backdrop-filter: blur(24px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03) !important;
     transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease !important;
 }
 
@@ -47,6 +47,7 @@
 .mainHeader .svg-ico-search,
 .mainHeader .header-action_search .box-icon svg {
     fill: #222222 !important;
+    color: #222222 !important;
 }
 
 .mainHeader .hamburger-menu .bar,
@@ -83,6 +84,28 @@
     backdrop-filter: blur(16px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* SEARCH MODAL OVERLAY GUARANTEE */
+.gsp-overlay.gsp-active {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 999999999 !important;
+}
+
+/* MOBILE PHONE HOTLINE FAB & POPUP GUARANTEE */
+@media (max-width: 767px) {
+    .topbar-bottom {
+        position: fixed !important;
+        right: 16px !important;
+        bottom: 74px !important;
+        z-index: 9999999 !important;
+    }
+    .rbx-hotline-fab {
+        display: flex !important;
+        z-index: 9999999 !important;
+    }
 }
 
 /* Language Dropdown Guarantee */
